@@ -1,0 +1,14 @@
+{
+  "name": "Consulta Documentos de Clientes",
+  "short_name": "Docs Clientes",
+  "description": "Consulta e monitoramento de requisitos e documentos de clientes",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#060e1e",
+  "theme_color": "#0a1628",
+  "orientation": "any",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}

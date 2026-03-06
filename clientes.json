@@ -1,0 +1,35 @@
+{
+  "clientes": [
+    {
+      "id": "helibras",
+      "nome": "HELIBRAS",
+      "url": "https://www.helibras.com.br/pt-br/politicas-para-fornecedores",
+      "documentos": [
+        { "nome": "Shipping Policy Helibras Repair, Overhaul" },
+        { "nome": "Shipping Policy Helibras Temporary Admission" },
+        { "nome": "Shipping Policy Helibras Importation" },
+        { "nome": "Shipping Policy Helibras Production & MRO Materials" },
+        { "nome": "Requisitos da Qualidade" },
+        { "nome": "Termos e condições gerais de compra" },
+        { "nome": "Orientações Preenchimento NF" },
+        { "nome": "Código de Conduta do Fornecedor" }
+      ]
+    },
+    {
+      "id": "embraer",
+      "nome": "EMBRAER",
+      "url": "https://www.embraersuppliers.com/esuppliers/#/en-US/supplier-requirements",
+      "documentos": [
+        { "nome": "Fornecedores Brasileiros" },
+        { "nome": "EQRS" },
+        { "nome": "EPPAP" },
+        { "nome": "Non-Conformity Materials" },
+        { "nome": "Embraer Package Manual" },
+        { "nome": "Manual de Embalagens Embraer" },
+        { "nome": "Manual de Embalagens para Subcontratado" },
+        { "nome": "Wood Packaging Material" },
+        { "nome": "Brazilian Government Defense Program" }
+      ]
+    }
+  ]
+}
