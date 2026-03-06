@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+  <meta name="theme-color" content="#0a1628"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-title" content="Docs Clientes"/>
+  <link rel="manifest" href="manifest.json"/>
+  <title>Consulta Documentos de Clientes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    :root{--bg:#060e1e;--bg2:#0a1628;--card:#0f1f38;--border:rgba(56,130,246,.15);--border2:rgba(56,130,246,.3);--accent:#2563eb;--accent2:#3b82f6;--teal:#0d9488;--text:#e8f0fe;--muted:#5a7da8;--faint:#1a3055;--green:#22c55e;--green-bg:rgba(34,197,94,.1);--yellow:#f59e0b;--yellow-bg:rgba(245,158,11,.1);--red:#ef4444;--red-bg:rgba(239,68,68,.1);--r:14px}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;min-height:100dvh}
+    .hdr{position:sticky;top:0;z-index:100;background:rgba(6,14,30,.97);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:env(safe-area-inset-top,0) 0 0}
+    .hdr-inner{display:flex;align-items:center;gap:12px;padding:14px 20px}
+    .hdr-logo{width:42px;height:42px;border-radius:11px;flex-shrink:0;background:linear-gradient(135deg,#2563eb,#0d9488);display:flex;align-items:center;justify-content:center;font-size:20px}
+    .hdr-title{font-size:16px;font-weight:800;letter-spacing:-.4px}
+    .hdr-sub{font-size:11px;color:var(--muted);margin-top:2px}
+    .hdr-date{margin-left:auto;font-size:11px;color:var(--muted);background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:8px;padding:5px 10px;white-space:nowrap}
+    .tabs{display:flex;border-bottom:1px solid var(--border);background:var(--bg2);overflow-x:auto;scrollbar-width:none}
+    .tabs::-webkit-scrollbar{display:none}
+    .tab{padding:12px 22px;font-size:13px;font-weight:600;color:var(--muted);cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;transition:all .2s;flex-shrink:0}
+    .tab.active{color:var(--accent2);border-bottom-color:var(--accent2);background:rgba(59,130,246,.05)}
+    .tab:hover:not(.active){color:var(--text)}
+    .main{padding:20px 16px 110px;max-width:900px;margin:0 auto}
+    .cliente-nome{font-size:20px;font-weight:800;letter-spacing:-.5px;margin-bottom:4px}
+    .cliente-url{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--accent2);margin-bottom:16px;word-break:break-all;text-decoration:none;display:block}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+    .stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px;text-align:center}
+    .stat-num{font-size:22px;font-weight:800;margin-bottom:2px}
+    .stat-lbl{font-size:11px;color:var(--muted)}
+    .stat-num.green{color:var(--green)}.stat-num.yellow{color:var(--yellow)}.stat-num.blue{color:var(--accent2)}
+    .doc-list{display:flex;flex-direction:column;gap:10px}
+    .doc-card{background:var(--card);border:1px solid var(--border);border-radius:var(--r);padding:14px 16px}
+    .doc-card.ok{border-left:3px solid var(--green)}.doc-card.warn{border-left:3px solid var(--yellow)}.doc-card.notfound{border-left:3px solid var(--red)}
+    .doc-top{display:flex;align-items:flex-start;gap:10px}
+    .doc-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+    .doc-info{flex:1;min-width:0}
+    .doc-nome{font-size:14px;font-weight:700;margin-bottom:6px}
+    .doc-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+    .badge{display:inline-flex;align-items:center;gap:4px;border-radius:20px;padding:3px 10px;font-size:11px;font-weight:700}
+    .badge-ok{background:var(--green-bg);color:var(--green)}.badge-warn{background:var(--yellow-bg);color:var(--yellow)}.badge-err{background:var(--red-bg);color:var(--red)}
+    .badge-rev{background:rgba(13,148,136,.12);color:#2dd4bf;border-radius:6px;padding:3px 9px;font-size:11px;font-weight:600;font-family:'JetBrains Mono',monospace}
+    .doc-link{display:inline-flex;align-items:center;gap:5px;margin-top:8px;color:var(--accent2);font-size:12px;font-weight:600;text-decoration:none;background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);border-radius:7px;padding:6px 12px;transition:all .15s;word-break:break-all}
+    .doc-link:hover{background:rgba(59,130,246,.18)}
+    .aviso{background:rgba(245,158,11,.08);border:1px solid rgba(245,158,11,.25);border-radius:10px;padding:12px 16px;margin-bottom:18px;font-size:13px;color:#fcd34d;line-height:1.6}
+    .fab{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom,0px));right:20px;z-index:200;background:linear-gradient(135deg,var(--teal),var(--accent));border:none;border-radius:50px;color:#fff;font-family:'Sora',sans-serif;font-size:13px;font-weight:700;padding:14px 22px;cursor:pointer;box-shadow:0 8px 28px rgba(13,148,136,.4);display:flex;align-items:center;gap:8px;transition:transform .15s}
+    .fab:hover{transform:translateY(-2px)}.fab:active{transform:scale(.97)}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+    .fade-in{animation:fadeIn .25s ease}
+  </style>
+</head>
+<body>
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-logo">📋</div>
+    <div><div class="hdr-title">Consulta Documentos</div><div class="hdr-sub">Requisitos de Clientes · AEL</div></div>
+    <div class="hdr-date" id="hdrDate">—</div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</header>
+<main class="main" id="main"></main>
+<button class="fab" onclick="gerarPDF()">📄 Baixar PDF</button>
+<script>
+let clientes=[],resultados={},ultimaConsulta="",clienteAtivo=null;
+async function init(){
+  const[cR,rR]=await Promise.all([fetch("https://renatomartin45-beep.github.io/Norms-app/clientes.json?v="+Date.now()),fetch("https://renatomartin45-beep.github.io/Norms-app/resultados.json?v="+Date.now())]);
+  const cD=await cR.json(),rD=await rR.json();
+  clientes=cD.clientes;resultados=rD.clientes;ultimaConsulta=rD.ultima_consulta;
+  document.getElementById("hdrDate").textContent="Atualizado: "+ultimaConsulta;
+  renderTabs();selecionarCliente(clientes[0].id);
+}
+function renderTabs(){document.getElementById("tabs").innerHTML=clientes.map(c=>`<div class="tab ${clienteAtivo===c.id?'active':''}" onclick="selecionarCliente('${c.id}')">${c.nome}</div>`).join("")}
+function selecionarCliente(id){clienteAtivo=id;renderTabs();renderCliente();}
+function renderCliente(){
+  const c=clientes.find(x=>x.id===clienteAtivo),res=resultados[c.id]||{};
+  const total=c.documentos.length,enc=Object.values(res).filter(r=>r.status==="ok").length,pend=total-enc;
+  const aviso=c.id==="embraer"?`<div class="aviso">⚠️ <strong>Portal Embraer requer autenticação.</strong> Os links abaixo levam ao portal — acesse com suas credenciais corporativas para baixar os documentos.</div>`:"";
+  document.getElementById("main").innerHTML=`<div class="fade-in">
+    <div class="cliente-nome">${c.nome}</div>
+    <a class="cliente-url" href="${c.url}" target="_blank">🔗 ${c.url}</a>
+    <div class="stats">
+      <div class="stat"><div class="stat-num blue">${total}</div><div class="stat-lbl">Total</div></div>
+      <div class="stat"><div class="stat-num green">${enc}</div><div class="stat-lbl">Encontrados</div></div>
+      <div class="stat"><div class="stat-num yellow">${pend}</div><div class="stat-lbl">Pendentes</div></div>
+    </div>${aviso}
+    <div class="doc-list">${c.documentos.map(d=>renderCard(d.nome,res[d.nome])).join("")}</div>
+  </div>`;
+}
+function renderCard(nome,r){
+  const icone=!r?"⬜":r.status==="ok"?"✅":r.status==="warn"?"⚠️":"❌";
+  const cls=!r?"":r.status==="ok"?"ok":r.status==="warn"?"warn":"notfound";
+  const bc=!r?"badge-err":r.status==="ok"?"badge-ok":r.status==="warn"?"badge-warn":"badge-err";
+  const bt=!r?"Sem dados":r.status==="ok"?"✓ Encontrado":r.status==="warn"?"⚠ Requer login":"✗ Não encontrado";
+  return`<div class="doc-card ${cls}"><div class="doc-top"><div class="doc-icon">${icone}</div><div class="doc-info"><div class="doc-nome">${nome}</div><div class="doc-meta"><span class="badge ${bc}">${bt}</span>${r?.revisao?`<span class="badge-rev">📅 ${r.revisao}</span>`:""}</div>${r?.link&&r.link!=="—"?`<a class="doc-link" href="${r.link}" target="_blank" rel="noreferrer">🔗 Acessar documento</a>`:""}</div></div></div>`;
+}
+function gerarPDF(){
+  const c=clientes.find(x=>x.id===clienteAtivo),res=resultados[c.id]||{};
+  const hoje=new Date().toLocaleDateString("pt-BR"),{jsPDF}=window.jspdf;
+  const doc=new jsPDF({orientation:"landscape",unit:"mm",format:"a4"});
+  doc.setFillColor(31,56,100);doc.rect(0,0,297,28,"F");
+  doc.setTextColor(255,255,255);doc.setFontSize(16);doc.setFont("helvetica","bold");
+  doc.text("Relatório de Consulta de Documentos — "+c.nome,14,12);
+  doc.setFontSize(9);doc.setFont("helvetica","normal");
+  doc.text("Última consulta: "+ultimaConsulta+"  |  Gerado em: "+hoje,14,21);
+  const rows=c.documentos.map(d=>{const r=res[d.nome]||{};const s=r.status==="ok"?"✓ Encontrado":r.status==="warn"?"⚠ Requer login":"✗ Não encontrado";return[d.nome,r.link||"—",r.revisao||"—",s];});
+  doc.autoTable({startY:32,head:[["Documento / Requisito","Link","Revisão","Status"]],body:rows,theme:"grid",headStyles:{fillColor:[31,56,100],textColor:255,fontSize:9,fontStyle:"bold"},bodyStyles:{fontSize:8,cellPadding:4},columnStyles:{0:{cellWidth:72},1:{cellWidth:118,textColor:[37,99,235]},2:{cellWidth:36,halign:"center"},3:{cellWidth:38,halign:"center"}},didParseCell:d=>{if(d.section==="body"&&d.column.index===3){const v=d.cell.raw;if(v.includes("✓"))d.cell.styles.textColor=[21,128,61];else if(v.includes("⚠"))d.cell.styles.textColor=[161,98,7];else if(v.includes("✗"))d.cell.styles.textColor=[185,28,28];}},alternateRowStyles:{fillColor:[245,248,255]}});
+  const pH=doc.internal.pageSize.height;doc.setFontSize(8);doc.setTextColor(150);
+  doc.text("Gerado em "+hoje+" — Consulta Documentos de Clientes · AEL",14,pH-8);
+  doc.save("Relatorio_"+c.nome+"_"+hoje.replace(/\//g,"-")+".pdf");
+}
+init();
+if("serviceWorker" in navigator)navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+</body>
+</html>
