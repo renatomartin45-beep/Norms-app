@@ -1,0 +1,94 @@
+{
+  "ultima_consulta": "06/03/2026",
+  "clientes": {
+    "helibras": {
+      "Shipping Policy Helibras Repair, Overhaul": {
+        "link": "https://www.helibras.com.br/sites/g/files/jlcbta216/files/2025-03/shipping_policy_helibras_repair_-_overhaul_-_re-certification_-_return_of_temporary_exportation_rev_3_2025.pdf",
+        "revisao": "Rev 3 – Mar/2025",
+        "status": "ok"
+      },
+      "Shipping Policy Helibras Temporary Admission": {
+        "link": "https://www.helibras.com.br/sites/g/files/jlcbta216/files/2025-03/shipping_policy_helibras_temporary_admission_helicopter_rev_4_2025.pdf",
+        "revisao": "Rev 4 – Mar/2025",
+        "status": "ok"
+      },
+      "Shipping Policy Helibras Importation": {
+        "link": "https://www.helibras.com.br/sites/g/files/jlcbta216/files/2025-03/shipping_policy_helibras_importation_helicopter_rev_1_2025.pdf",
+        "revisao": "Rev 1 – Mar/2025",
+        "status": "ok"
+      },
+      "Shipping Policy Helibras Production & MRO Materials": {
+        "link": "https://www.helibras.com.br/sites/g/files/jlcbta216/files/2025-03/shipping_policy_helibras_-_production_mro_materials_-_spare_parts_-_rev_12_2025.pdf",
+        "revisao": "Rev 12 – Mar/2025",
+        "status": "ok"
+      },
+      "Requisitos da Qualidade": {
+        "link": "https://www.helibras.com.br/sites/g/files/jlcbta216/files/2025-02/helibras_quality_requirements_rev_i_1.pdf",
+        "revisao": "Rev I – Fev/2025",
+        "status": "ok"
+      },
+      "Termos e condições gerais de compra": {
+        "link": "https://www.helibras.com.br/sites/g/files/jlcbta216/files/2024-11/termoscondicoesgerais_decompras_dez2019.pdf",
+        "revisao": "Dez/2019",
+        "status": "ok"
+      },
+      "Orientações Preenchimento NF": {
+        "link": "https://www.helibras.com.br/sites/g/files/jlcbta216/files/2024-11/condicoes_para_fornecedor.pdf",
+        "revisao": "Nov/2024",
+        "status": "ok"
+      },
+      "Código de Conduta do Fornecedor": {
+        "link": "https://www.helibras.com.br/sites/g/files/jlcbta216/files/2024-11/airbus_scoc_portuguese_1_0.pdf",
+        "revisao": "Nov/2024",
+        "status": "ok"
+      }
+    },
+    "embraer": {
+      "Fornecedores Brasileiros": {
+        "link": "https://www.embraersuppliers.com/esuppliers/#/pt-BR",
+        "revisao": "",
+        "status": "warn"
+      },
+      "EQRS": {
+        "link": "https://www.embraersuppliers.com/esuppliers/#/en-US/supplier-requirements",
+        "revisao": "Rev L (última pública)",
+        "status": "warn"
+      },
+      "EPPAP": {
+        "link": "https://www.embraersuppliers.com/esuppliers/#/en-US/supplier-requirements",
+        "revisao": "",
+        "status": "warn"
+      },
+      "Non-Conformity Materials": {
+        "link": "https://www.embraersuppliers.com/esuppliers/#/en-US/supplier-requirements",
+        "revisao": "",
+        "status": "warn"
+      },
+      "Embraer Package Manual": {
+        "link": "https://www.embraersuppliers.com/esuppliers/#/en-US/supplier-requirements",
+        "revisao": "",
+        "status": "warn"
+      },
+      "Manual de Embalagens Embraer": {
+        "link": "https://www.embraersuppliers.com/esuppliers/#/en-US/supplier-requirements",
+        "revisao": "",
+        "status": "warn"
+      },
+      "Manual de Embalagens para Subcontratado": {
+        "link": "https://www.embraersuppliers.com/esuppliers/#/en-US/supplier-requirements",
+        "revisao": "",
+        "status": "warn"
+      },
+      "Wood Packaging Material": {
+        "link": "https://www.embraersuppliers.com/esuppliers/#/en-US/supplier-requirements",
+        "revisao": "",
+        "status": "warn"
+      },
+      "Brazilian Government Defense Program": {
+        "link": "https://www.embraersuppliers.com/esuppliers/#/en-US/supplier-requirements",
+        "revisao": "",
+        "status": "warn"
+      }
+    }
+  }
+}
