@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+  <meta name="theme-color" content="#0a1628"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Docs Clientes"/>
+  <link rel="manifest" href="manifest.json"/>
+  <title>Consulta Documentos de Clientes</title>
+  <link href="https://fonts.googleapis.com/css2?family=Sora:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+  <style>
+    :root {
+      --bg:#060e1e; --bg2:#0a1628; --card:#0f1f38; --card2:#142540;
+      --border:rgba(56,130,246,.15); --border2:rgba(56,130,246,.3);
+      --accent:#2563eb; --accent2:#3b82f6; --teal:#0d9488;
+      --text:#e8f0fe; --muted:#5a7da8; --faint:#1a3055;
+      --green:#22c55e; --green-bg:rgba(34,197,94,.1);
+      --yellow:#f59e0b; --yellow-bg:rgba(245,158,11,.1);
+      --red:#ef4444; --red-bg:rgba(239,68,68,.1);
+      --r:14px;
+    }
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{background:var(--bg);color:var(--text);font-family:'Sora',sans-serif;min-height:100dvh}
+
+```
+/* HEADER */
+.hdr{position:sticky;top:0;z-index:100;background:rgba(6,14,30,.97);
+  backdrop-filter:blur(20px);border-bottom:1px solid var(--border);
+  padding:env(safe-area-inset-top,0) 0 0}
+.hdr-inner{display:flex;align-items:center;gap:12px;padding:14px 20px}
+.hdr-logo{width:42px;height:42px;border-radius:11px;flex-shrink:0;
+  background:linear-gradient(135deg,#2563eb,#0d9488);
+  display:flex;align-items:center;justify-content:center;font-size:20px}
+.hdr-title{font-size:16px;font-weight:800;letter-spacing:-.4px}
+.hdr-sub{font-size:11px;color:var(--muted);margin-top:2px}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(--border);
+  background:var(--bg2);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:12px 22px;font-size:13px;font-weight:600;color:var(--muted);
+  cursor:pointer;white-space:nowrap;border-bottom:2px solid transparent;
+  transition:all .2s;flex-shrink:0}
+.tab.active{color:var(--accent2);border-bottom-color:var(--accent2);
+  background:rgba(59,130,246,.05)}
+.tab:hover:not(.active){color:var(--text)}
+
+/* MAIN */
+.main{padding:20px 16px 100px;max-width:900px;margin:0 auto}
+
+/* CLIENTE HEADER */
+.cliente-hdr{display:flex;align-items:flex-start;justify-content:space-between;
+  margin-bottom:16px;gap:12px;flex-wrap:wrap}
+.cliente-nome{font-size:20px;font-weight:800;letter-spacing:-.5px}
+.cliente-url{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);
+  margin-top:3px;word-break:break-all}
+.btn-consultar{background:linear-gradient(135deg,var(--accent),var(--teal));
+  border:none;border-radius:10px;color:#fff;
+  font-family:'Sora',sans-serif;font-size:13px;font-weight:700;
+  padding:11px 22px;cursor:pointer;display:flex;align-items:center;gap:8px;
+  transition:opacity .15s;white-space:nowrap;flex-shrink:0}
+.btn-consultar:hover{opacity:.9}
+.btn-consultar:disabled{opacity:.45;cursor:not-allowed}
+
+/* PROGRESS */
+.progress-wrap{margin-bottom:16px;display:none}
+.progress-wrap.show{display:block}
+.progress-label{font-size:12px;color:var(--muted);margin-bottom:6px;
+  display:flex;justify-content:space-between}
+.progress-bar{height:5px;background:var(--faint);border-radius:3px;overflow:hidden}
+.progress-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--teal));
+  border-radius:3px;transition:width .4s ease;width:0%}
+
+/* STATS */
+.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:20px}
+.stat{background:var(--card);border:1px solid var(--border);border-radius:var(--r);
+  padding:14px 16px;text-align:center}
+.stat-num{font-size:22px;font-weight:800;margin-bottom:2px}
+.stat-lbl{font-size:11px;color:var(--muted)}
+.stat-num.green{color:var(--green)}
+.stat-num.yellow{color:var(--yellow)}
+.stat-num.blue{color:var(--accent2)}
+
+/* DOCUMENT CARDS */
+.doc-list{display:flex;flex-direction:column;gap:10px}
+.doc-card{background:var(--card);border:1px solid var(--border);
+  border-radius:var(--r);padding:14px 16px;transition:border-color .2s}
+.doc-card:hover{border-color:var(--border2)}
+.doc-top{display:flex;align-items:flex-start;gap:10px}
+.doc-status-icon{font-size:18px;flex-shrink:0;margin-top:1px}
+.doc-info{flex:1;min-width:0}
+.doc-nome{font-size:14px;font-weight:700;margin-bottom:4px}
+.doc-meta{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-top:6px}
+.badge{display:inline-flex;align-items:center;gap:4px;border-radius:20px;
+  padding:3px 10px;font-size:11px;font-weight:700}
+.badge-ok    {background:var(--green-bg);color:var(--green)}
+.badge-warn  {background:var(--yellow-bg);color:var(--yellow)}
+.badge-err   {background:var(--red-bg);color:var(--red)}
+.badge-idle  {background:rgba(90,125,168,.15);color:var(--muted)}
+.badge-rev{background:rgba(13,148,136,.12);color:#2dd4bf;border-radius:6px;
+  padding:3px 9px;font-size:11px;font-weight:600;
+  font-family:'JetBrains Mono',monospace}
+.doc-link{display:inline-flex;align-items:center;gap:5px;margin-top:8px;
+  color:var(--accent2);font-size:12px;font-weight:600;text-decoration:none;
+  background:rgba(59,130,246,.08);border:1px solid rgba(59,130,246,.2);
+  border-radius:7px;padding:5px 11px;transition:all .15s;word-break:break-all}
+.doc-link:hover{background:rgba(59,130,246,.15)}
+
+/* IDLE */
+.idle-state{text-align:center;padding:50px 20px;color:var(--muted)}
+.idle-icon{font-size:48px;margin-bottom:14px;opacity:.4}
+.idle-title{font-size:16px;font-weight:700;color:var(--text);margin-bottom:6px}
+.idle-sub{font-size:13px;line-height:1.6}
+
+/* FAB PDF */
+.fab{position:fixed;bottom:calc(22px + env(safe-area-inset-bottom,0px));
+  right:20px;z-index:200;
+  background:linear-gradient(135deg,var(--teal),var(--accent));
+  border:none;border-radius:50px;color:#fff;
+  font-family:'Sora',sans-serif;font-size:13px;font-weight:700;
+  padding:14px 22px;cursor:pointer;
+  box-shadow:0 8px 28px rgba(13,148,136,.4);
+  display:flex;align-items:center;gap:8px;
+  transition:transform .15s,box-shadow .15s}
+.fab:hover{transform:translateY(-2px)}
+.fab:active{transform:scale(.97)}
+.fab:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* MODAL CHAVE */
+.overlay{display:none;position:fixed;inset:0;z-index:300;
+  background:rgba(0,0,0,.85);backdrop-filter:blur(8px);
+  align-items:center;justify-content:center;padding:20px}
+.overlay.open{display:flex}
+.modal{background:var(--card);border:1px solid var(--border2);
+  border-radius:20px;padding:28px;width:100%;max-width:480px}
+.modal-title{font-size:17px;font-weight:800;margin-bottom:6px}
+.modal-sub{font-size:13px;color:var(--muted);margin-bottom:22px;line-height:1.6}
+.form-label{font-size:12px;font-weight:700;color:var(--muted);
+  text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;display:block}
+.form-input{width:100%;background:rgba(255,255,255,.05);
+  border:1px solid var(--border2);border-radius:9px;color:var(--text);
+  font-family:'JetBrains Mono',monospace;font-size:13px;
+  padding:11px 14px;outline:none;transition:border-color .2s}
+.form-input:focus{border-color:var(--accent2)}
+.form-hint{font-size:11px;color:var(--muted);margin-top:6px;line-height:1.5}
+.modal-btns{display:flex;gap:10px;margin-top:20px}
+.btn-primary{flex:1;background:linear-gradient(135deg,var(--accent),var(--teal));
+  border:none;border-radius:10px;color:#fff;
+  font-family:'Sora',sans-serif;font-size:14px;font-weight:700;
+  padding:13px;cursor:pointer;transition:opacity .15s}
+.btn-primary:hover{opacity:.9}
+.btn-cancel{background:rgba(255,255,255,.06);border:1px solid var(--border);
+  border-radius:10px;color:var(--muted);font-family:'Sora',sans-serif;
+  font-size:14px;font-weight:600;padding:13px 18px;cursor:pointer}
+
+@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}
+.spin{display:inline-block;animation:spin 1s linear infinite}
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.fade-in{animation:fadeIn .25s ease}
+```
+
+  </style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-inner">
+    <div class="hdr-logo">📋</div>
+    <div>
+      <div class="hdr-title">Consulta Documentos</div>
+      <div class="hdr-sub">Requisitos de Clientes · AEL</div>
+    </div>
+  </div>
+  <div class="tabs" id="tabs"></div>
+</header>
+
+<main class="main" id="main">
+  <div class="idle-state">
+    <div class="idle-icon">🔍</div>
+    <div class="idle-title">Carregando clientes...</div>
+  </div>
+</main>
+
+<button class="fab" id="fabPdf" onclick="gerarPDF()" disabled>📄 Baixar PDF</button>
+
+<!-- MODAL CHAVE API -->
+
+<div class="overlay" id="overlayChave">
+  <div class="modal">
+    <div class="modal-title">🔑 Chave Anthropic API</div>
+    <div class="modal-sub">
+      Para consultar os documentos, o app usa IA para acessar as páginas dos clientes.
+      Informe sua chave API uma única vez — ela fica salva no aparelho.
+    </div>
+    <label class="form-label">Chave API</label>
+    <input class="form-input" id="inputChave" type="password"
+      placeholder="sk-ant-api..."/>
+    <div class="form-hint">
+      Obtenha sua chave em <strong>console.anthropic.com</strong> → API Keys.<br>
+      A chave é salva apenas neste aparelho e nunca compartilhada.
+    </div>
+    <div class="modal-btns">
+      <button class="btn-primary" onclick="salvarChave()">Salvar e Consultar</button>
+      <button class="btn-cancel" onclick="fecharModalChave()">Cancelar</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── ESTADO ────────────────────────────────────────────────────────────────
+let clientes      = [];
+let clienteAtivo  = null;
+let resultados    = {}; // { clienteId: { docNome: {link,revisao,status} } }
+let consultando   = false;
+let callbackChave = null;
+
+// ── CARREGAR CLIENTES.JSON ────────────────────────────────────────────────
+async function carregarClientes() {
+  try {
+    const r = await fetch("./clientes.json?v=" + Date.now());
+    const data = await r.json();
+    clientes = data.clientes;
+  } catch {
+    clientes = [];
+  }
+  renderTabs();
+  if (clientes.length > 0) selecionarCliente(clientes[0].id);
+}
+
+// ── TABS ──────────────────────────────────────────────────────────────────
+function renderTabs() {
+  document.getElementById("tabs").innerHTML = clientes.map(c =>
+    `<div class="tab ${clienteAtivo === c.id ? 'active' : ''}"
+      onclick="selecionarCliente('${c.id}')">${c.nome}</div>`
+  ).join("");
+}
+
+function selecionarCliente(id) {
+  if (consultando) return;
+  clienteAtivo = id;
+  renderTabs();
+  renderCliente();
+}
+
+// ── RENDER ────────────────────────────────────────────────────────────────
+function renderCliente() {
+  const c = clientes.find(x => x.id === clienteAtivo);
+  if (!c) return;
+
+  const res          = resultados[c.id] || {};
+  const jaConsultou  = Object.keys(res).length > 0;
+  const total        = c.documentos.length;
+  const encontrados  = Object.values(res).filter(r => r.status === "ok").length;
+  const pendentes    = total - encontrados;
+
+  document.getElementById("main").innerHTML = `
+    <div class="fade-in">
+      <div class="cliente-hdr">
+        <div>
+          <div class="cliente-nome">${c.nome}</div>
+          <div class="cliente-url">🔗 ${c.url}</div>
+        </div>
+        <button class="btn-consultar" id="btnConsultar"
+          onclick="iniciarConsulta('${c.id}')"
+          ${consultando ? "disabled" : ""}>
+          ${consultando
+            ? `<span class="spin">⟳</span> Consultando...`
+            : `🔍 ${jaConsultou ? "Atualizar" : "Consultar Agora"}`}
+        </button>
+      </div>
+
+      <div class="progress-wrap ${consultando ? 'show' : ''}" id="progressWrap">
+        <div class="progress-label">
+          <span id="progressLabel">Iniciando...</span>
+          <span id="progressPct">0%</span>
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill"></div>
+        </div>
+      </div>
+
+      ${jaConsultou ? `
+      <div class="stats">
+        <div class="stat"><div class="stat-num blue">${total}</div><div class="stat-lbl">Total</div></div>
+        <div class="stat"><div class="stat-num green">${encontrados}</div><div class="stat-lbl">Encontrados</div></div>
+        <div class="stat"><div class="stat-num yellow">${pendentes}</div><div class="stat-lbl">Pendentes</div></div>
+      </div>` : `
+      <div class="idle-state" style="padding:30px 0">
+        <div class="idle-icon" style="font-size:36px">📂</div>
+        <div class="idle-title">${total} documentos cadastrados</div>
+        <div class="idle-sub">Clique em "Consultar Agora" para buscar<br>os links e datas de revisão automaticamente.</div>
+      </div>`}
+
+      <div class="doc-list" id="docList">
+        ${c.documentos.map(d => renderDocCard(d.nome, res[d.nome])).join("")}
+      </div>
+    </div>`;
+
+  document.getElementById("fabPdf").disabled = !jaConsultou;
+}
+
+function renderDocCard(nome, res) {
+  const icone    = !res ? "⬜" : res.status==="ok" ? "✅" : res.status==="warn" ? "⚠️" : "❌";
+  const badgeCls = !res ? "badge-idle" : res.status==="ok" ? "badge-ok" : res.status==="warn" ? "badge-warn" : "badge-err";
+  const badgeTxt = !res ? "Aguardando consulta" : res.status==="ok" ? "Encontrado" : res.status==="warn" ? "Requer login" : "Não encontrado";
+
+  return `
+    <div class="doc-card" id="doc-${nome.replace(/[^a-z0-9]/gi,'_')}">
+      <div class="doc-top">
+        <div class="doc-status-icon">${icone}</div>
+        <div class="doc-info">
+          <div class="doc-nome">${nome}</div>
+          <div class="doc-meta">
+            <span class="badge ${badgeCls}">${badgeTxt}</span>
+            ${res?.revisao ? `<span class="badge-rev">📅 ${res.revisao}</span>` : ""}
+          </div>
+          ${res?.link && res.link !== "—"
+            ? `<a class="doc-link" href="${res.link}" target="_blank" rel="noreferrer">🔗 Acessar documento</a>`
+            : ""}
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── CHAVE API ─────────────────────────────────────────────────────────────
+function obterChave() {
+  return localStorage.getItem("anthropic_key") || "";
+}
+
+function salvarChave() {
+  const key = document.getElementById("inputChave").value.trim();
+  if (!key.startsWith("sk-")) {
+    alert("Chave inválida. Deve começar com sk-ant-...");
+    return;
+  }
+  localStorage.setItem("anthropic_key", key);
+  fecharModalChave();
+  if (callbackChave) { callbackChave(key); callbackChave = null; }
+}
+
+function fecharModalChave() {
+  document.getElementById("overlayChave").classList.remove("open");
+}
+
+function pedirChave(callback) {
+  callbackChave = callback;
+  document.getElementById("inputChave").value = obterChave();
+  document.getElementById("overlayChave").classList.add("open");
+}
+
+// ── CONSULTAR ─────────────────────────────────────────────────────────────
+function iniciarConsulta(id) {
+  const key = obterChave();
+  if (!key) {
+    pedirChave(k => consultarCliente(id, k));
+  } else {
+    consultarCliente(id, key);
+  }
+}
+
+async function consultarCliente(id, key) {
+  const c = clientes.find(x => x.id === id);
+  if (!c || consultando) return;
+
+  consultando = true;
+  resultados[id] = {};
+  renderCliente();
+
+  for (let i = 0; i < c.documentos.length; i++) {
+    const doc = c.documentos[i];
+    const pct = Math.round((i / c.documentos.length) * 100);
+
+    const fill  = document.getElementById("progressFill");
+    const label = document.getElementById("progressLabel");
+    const pctEl = document.getElementById("progressPct");
+    if (fill)  fill.style.width  = pct + "%";
+    if (label) label.textContent = `Buscando: ${doc.nome}`;
+    if (pctEl) pctEl.textContent = pct + "%";
+
+    try {
+      const resp = await fetch("https://api.anthropic.com/v1/messages", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-api-key": key,
+          "anthropic-version": "2023-06-01",
+          "anthropic-dangerous-direct-browser-access": "true",
+        },
+        body: JSON.stringify({
+          model: "claude-sonnet-4-20250514",
+          max_tokens: 600,
+          tools: [{ type: "web_search_20250305", name: "web_search" }],
+          system: `Você localiza documentos técnicos em sites de aviação.
+Responda APENAS com JSON válido, sem markdown:
+{"link":"URL direta do arquivo ou página","revisao":"data/versão de revisão ou vazio","status":"ok|warn|notfound"}
+ok=link direto encontrado; warn=página existe mas requer login; notfound=não encontrado.`,
+          messages: [{
+            role: "user",
+            content: `Página do cliente: ${c.url}
+Documento a localizar: "${doc.nome}"
+Retorne o link direto e a data/versão de revisão se disponível.`
+          }]
+        })
+      });
+
+      const data = await resp.json();
+
+      // Verificar erro de chave inválida
+      if (data.error && data.error.type === "authentication_error") {
+        localStorage.removeItem("anthropic_key");
+        consultando = false;
+        alert("Chave API inválida. Por favor, informe novamente.");
+        renderCliente();
+        return;
+      }
+
+      const texto = (data.content || [])
+        .filter(b => b.type === "text").map(b => b.text).join("");
+
+      const match = texto.match(/\{[\s\S]*?\}/);
+      resultados[id][doc.nome] = match
+        ? JSON.parse(match[0])
+        : { link: "", revisao: "", status: "notfound" };
+
+    } catch {
+      resultados[id][doc.nome] = { link: "", revisao: "", status: "notfound" };
+    }
+
+    // Atualizar card em tempo real
+    const cardId = "doc-" + doc.nome.replace(/[^a-z0-9]/gi, "_");
+    const cardEl = document.getElementById(cardId);
+    if (cardEl) cardEl.outerHTML = renderDocCard(doc.nome, resultados[id][doc.nome]);
+  }
+
+  // Finalizar
+  const fill  = document.getElementById("progressFill");
+  const label = document.getElementById("progressLabel");
+  const pctEl = document.getElementById("progressPct");
+  if (fill)  fill.style.width  = "100%";
+  if (label) label.textContent = "Concluído!";
+  if (pctEl) pctEl.textContent = "100%";
+
+  consultando = false;
+  renderCliente();
+}
+
+// ── GERAR PDF ─────────────────────────────────────────────────────────────
+function gerarPDF() {
+  const c = clientes.find(x => x.id === clienteAtivo);
+  if (!c) return;
+  const res  = resultados[c.id] || {};
+  const hoje = new Date().toLocaleDateString("pt-BR");
+
+  const { jsPDF } = window.jspdf;
+  const doc = new jsPDF({ orientation: "landscape", unit: "mm", format: "a4" });
+
+  // Cabeçalho
+  doc.setFillColor(31, 56, 100);
+  doc.rect(0, 0, 297, 28, "F");
+  doc.setTextColor(255, 255, 255);
+  doc.setFontSize(16); doc.setFont("helvetica", "bold");
+  doc.text("Relatório de Consulta de Documentos", 14, 12);
+  doc.setFontSize(9); doc.setFont("helvetica", "normal");
+  doc.text(`Cliente: ${c.nome}  |  Consulta: ${hoje}`, 14, 21);
+
+  const rows = c.documentos.map(d => {
+    const r = res[d.nome] || {};
+    const s = !r.status ? "Aguardando"
+      : r.status === "ok"       ? "✓ Encontrado"
+      : r.status === "warn"     ? "⚠ Requer login"
+      : "✗ Não encontrado";
+    return [d.nome, r.link || "—", r.revisao || "—", s];
+  });
+
+  doc.autoTable({
+    startY: 32,
+    head: [["Documento / Requisito", "Link", "Revisão", "Status"]],
+    body: rows,
+    theme: "grid",
+    headStyles: { fillColor:[31,56,100], textColor:255, fontSize:9, fontStyle:"bold" },
+    bodyStyles: { fontSize:8, cellPadding:4 },
+    columnStyles: {
+      0: { cellWidth:70 },
+      1: { cellWidth:120, textColor:[37,99,235] },
+      2: { cellWidth:35, halign:"center" },
+      3: { cellWidth:40, halign:"center" },
+    },
+    didParseCell: d => {
+      if (d.section==="body" && d.column.index===3) {
+        const v = d.cell.raw;
+        if (v.includes("✓"))      d.cell.styles.textColor = [21,128,61];
+        else if (v.includes("⚠")) d.cell.styles.textColor = [161,98,7];
+        else if (v.includes("✗")) d.cell.styles.textColor = [185,28,28];
+      }
+    },
+    alternateRowStyles: { fillColor:[245,248,255] },
+  });
+
+  const pageH = doc.internal.pageSize.height;
+  doc.setFontSize(8); doc.setTextColor(150);
+  doc.text(`Gerado em ${hoje} — Consulta Documentos de Clientes · AEL`, 14, pageH - 8);
+
+  doc.save(`Relatorio_${c.nome}_${hoje.replace(/\//g,"-")}.pdf`);
+}
+
+// ── INIT ──────────────────────────────────────────────────────────────────
+carregarClientes();
+if ("serviceWorker" in navigator) navigator.serviceWorker.register("./sw.js").catch(()=>{});
+</script>
+
+</body>
+</html>
